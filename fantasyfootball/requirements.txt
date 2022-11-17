@@ -1,5 +1,4 @@
 espn_api
-espn_api.football.League
 pandas
 numpy
 matplotlib
