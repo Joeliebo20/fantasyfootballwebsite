@@ -4,3 +4,4 @@ numpy
 matplotlib
 datetime
 streamlit
+openpyxl
