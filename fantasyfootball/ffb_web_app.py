@@ -152,8 +152,7 @@ def main(): # refresh gets newest league data, call every week
     today = datetime.now()
     year = datetime.now().year
     name_to_roster_map = {}
-    if today.isoweekday() >= 4: # if it is thursday or friday, refresh
-        league.refresh()  
+    league.refresh()  
     curr_week = league.current_week
     pts, pts_against,avg_pts, rosters, home_teams, away_teams = [], [], [], [], [], []
     box_scores = league.box_scores(curr_week)
