@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 from info import league, owners, league_mates, teams, draft, league_ids
 from datetime import datetime
 import streamlit as st
-import base64
-
 
 home_data = []
 away_data = []
@@ -33,22 +31,30 @@ def write_to_excel(df, df1):
     writer.save()
 
 
-def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map):
-    # select_box = st.selectbox()
-    home = False
+def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map, home, away):
+    data = []
+    home_team_names = []
+    away_team_names = []
+    playoff_pct_data = []
     st.title(f'Family Fantasy Football Week {current_week}, {year} Stats')
     st.markdown("""
     This web app takes data from an ESPN Fantasy Football League and creates a webpage out of it
     """)
     col1, col2 = st.columns(2)
     col1.header('Home Teams Stats')
+    for team in home:
+        home_team_names.append(team.owner)
+    col1.caption(f"Home Teams this week: {home_team_names}")
     sort = df1.sort_values(by='Points', ascending=False)
     col1.write(sort)
     col2.header('Away Teams Stats')
+    for team in away:
+        away_team_names.append(team.owner)
     sort2 = df2.sort_values(by='Points', ascending=False)
+    col2.caption(f'Away teams this week: {away_team_names}')
     col2.write(sort2)
 
-    if st.button('Average Points Per Roster Graph'):
+    if col1.button('Average Points Per Roster Graph'):
         max_pts = max(avg_pts)
         min_pts = min(avg_pts)
         for key in name_to_roster_map.keys():
@@ -68,6 +74,38 @@ def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map):
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         st.pyplot(fig)
+    if col2.button("Other team's average pts per roster"):
+        for name, pts in name_to_roster_map.items():
+            data.append([name, pts])
+        avg_pts_df = pd.DataFrame(columns=['Name', 'Average Points'], data=data)
+        sorted = avg_pts_df.sort_values(by='Average Points', ascending=False)
+        st.write('Numbers on the left are corresponding team ids - the order in which a player joined the league')
+        st.caption('For example - 0 corresponds to Joe, who joined the league first.')
+        st.table(sorted)
+    if col1.button('Playoff percentages'):
+        for team in home:
+            playoff_pct_data.append([team.owner, team.playoff_pct])
+        for team in away:
+            playoff_pct_data.append([team.owner, team.playoff_pct])
+        playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
+        sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False)
+        st.table(sorted_df)
+    choice = col2.selectbox('Other data', ['League Standings', 'Team Records'])
+    if choice == 'League Standings':
+        standings = league.standings()
+        s = []
+        standing = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th']
+        for index, team in enumerate(standings):
+            s.append([team.owner, standing[index]])
+        standings_df = pd.DataFrame(columns=['Name', 'Standing'], data=s)
+        st.table(standings_df)
+    elif choice == 'Team Records':
+        records = []
+        for team in teams:
+            records.append([team.owner, team.wins, team.losses])
+        records_df = pd.DataFrame(columns=["Name", "Wins", "Losses"], data=records)
+        sorted_records = records_df.sort_values(by='Wins', ascending=False)
+        st.table(sorted_records)
 
 
 
@@ -114,19 +152,24 @@ def main(): # refresh gets newest league data, call every week
     today = datetime.now()
     year = datetime.now().year
     name_to_roster_map = {}
-    # if today.isoweekday() > 4: # if it is thursday or friday, refresh
-        # league.refresh()  
+    if today.isoweekday() > 4: # if it is thursday or friday, refresh
+        league.refresh()  
     curr_week = league.current_week
-    pts, pts_against,avg_pts, rosters = [], [], [], []
-    for id in league_ids:
-        pts.append(league.get_team_data(id).points_for)
-        rosters.append(league.get_team_data(id).roster)
+    pts, pts_against,avg_pts, rosters, home_teams, away_teams = [], [], [], [], [], []
+    box_scores = league.box_scores(curr_week)
+    for box_score in box_scores:
+        home_teams.append(box_score.home_team)
+        away_teams.append(box_score.away_team)
+        # fix this get every single teams data (aunt michele and uncle scott)
+        # prob do boxScore
+    for team in teams:
+        pts.append(team.points_for)
     for i in range(len(pts)):
         avg_pts.append(pts[i] / curr_week)
-    for count, pts in enumerate(avg_pts):
-        name_to_roster_map[league_mates[count]] = pts
+    for count, pts in enumerate(avg_pts, start=0):
+        name_to_roster_map[owners[count]] = pts
     
     df1, df2 = save_player_data(curr_week)
-    to_web_app(df1, df2, year, curr_week, avg_pts, name_to_roster_map)
+    to_web_app(df1, df2, year, curr_week, avg_pts, name_to_roster_map, home_teams, away_teams)
 
 main()
