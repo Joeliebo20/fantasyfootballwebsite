@@ -13,9 +13,9 @@ away_data = []
     
 
 def get_scores(current_week : int, owner_name : str):
-    for team in teams:
-        if owner_name == team.owner:
-            scores = team.scores[0:current_week]
+    for t in teams:
+        if owner_name == t.owner:
+            scores = t.scores[0:current_week]
     return scores
 
 
@@ -42,14 +42,14 @@ def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map, 
     """)
     col1, col2 = st.columns(2)
     col1.header('Home Teams Stats')
-    for team in home:
-        home_team_names.append(team.owner)
+    for t in home:
+        home_team_names.append(t.owner)
     col1.caption(f"Home Teams this week: {home_team_names}")
     sort = df1.sort_values(by='Points', ascending=False)
     col1.write(sort)
     col2.header('Away Teams Stats')
-    for team in away:
-        away_team_names.append(team.owner)
+    for t in away:
+        away_team_names.append(t.owner)
     sort2 = df2.sort_values(by='Points', ascending=False)
     col2.caption(f'Away teams this week: {away_team_names}')
     col2.write(sort2)
@@ -83,29 +83,37 @@ def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map, 
         st.caption('For example - 0 corresponds to Joe, who joined the league first.')
         st.table(sorted)
     if col1.button('Playoff percentages'):
-        for team in home:
-            playoff_pct_data.append([team.owner, team.playoff_pct])
-        for team in away:
-            playoff_pct_data.append([team.owner, team.playoff_pct])
+        for t in home:
+            playoff_pct_data.append([t.owner, t.playoff_pct])
+        for t in away:
+            playoff_pct_data.append([t.owner, t.playoff_pct])
         playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
         sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False)
         st.table(sorted_df)
-    choice = col2.selectbox('Other data', ['League Standings', 'Team Records'])
+    choice = col2.selectbox('Other data', ['League Standings', 'Team Records', 'Adds, Drops, and Trades'])
     if choice == 'League Standings':
         standings = league.standings()
         s = []
         standing = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th']
-        for index, team in enumerate(standings):
-            s.append([team.owner, standing[index]])
+        for index, t in enumerate(standings, start=0):
+            s.append([t.owner, standing[index]])
         standings_df = pd.DataFrame(columns=['Name', 'Standing'], data=s)
         st.table(standings_df)
     elif choice == 'Team Records':
         records = []
-        for team in teams:
-            records.append([team.owner, team.wins, team.losses])
-        records_df = pd.DataFrame(columns=["Name", "Wins", "Losses"], data=records)
+        for t in teams:
+            records.append([t.owner, t.wins, t.losses, t.points_for, t.points_against])
+        records_df = pd.DataFrame(columns=["Name", "Wins", "Losses", "PF", 'PA'], data=records)
         sorted_records = records_df.sort_values(by='Wins', ascending=False)
+        sorted_records['PF'] = sorted_records['PF'].astype(float).round(2)
+        sorted_records['PA'] = sorted_records['PA'].astype(float).round(2)
         st.table(sorted_records)
+    elif choice == 'Adds, Drops, and Trades':
+        data = []
+        for t in teams:
+            data.append([t.owner, t.acquisitions, t.drops, t.trades])
+        other_data_df = pd.DataFrame(columns=['Name', '# of Adds', '# of Drops', '# of Trades'], data=data)
+        st.table(other_data_df)
 
 
 
@@ -161,8 +169,8 @@ def main(): # refresh gets newest league data, call every week
         away_teams.append(box_score.away_team)
         # fix this get every single teams data (aunt michele and uncle scott)
         # prob do boxScore
-    for team in teams:
-        pts.append(team.points_for)
+    for t in teams:
+        pts.append(t.points_for)
     for i in range(len(pts)):
         avg_pts.append(pts[i] / curr_week)
     for count, pts in enumerate(avg_pts, start=0):
