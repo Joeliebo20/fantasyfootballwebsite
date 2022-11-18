@@ -31,12 +31,20 @@ def write_to_excel(df, df1):
     writer.save()
 
 
-def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map, home, away):
+def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
+    home, away = [], []
+    st.sidebar.header('User Input Features')
+    selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))      
+    df1, df2 = save_player_data(selected_week)
+    box_scores = league.box_scores(selected_week)
+    for box_score in box_scores:
+        home.append(box_score.home_team)
+        away.append(box_score.away_team)
     data = []
     home_team_names = []
     away_team_names = []
     playoff_pct_data = []
-    st.title(f'Family Fantasy Football Week {current_week}, {year} Stats')
+    st.title(f'Family Fantasy Football Week {selected_week}, {year} Stats')
     st.markdown("""
     This web app takes data from an ESPN Fantasy Football League and creates a webpage out of it
     """)
@@ -162,13 +170,8 @@ def main(): # refresh gets newest league data, call every week
     name_to_roster_map = {}
     league.refresh()  
     curr_week = league.current_week
-    pts, pts_against,avg_pts, rosters, home_teams, away_teams = [], [], [], [], [], []
-    box_scores = league.box_scores(curr_week)
-    for box_score in box_scores:
-        home_teams.append(box_score.home_team)
-        away_teams.append(box_score.away_team)
-        # fix this get every single teams data (aunt michele and uncle scott)
-        # prob do boxScore
+    pts, pts_against,avg_pts, rosters = [], [], [], []
+
     for t in teams:
         pts.append(t.points_for)
     for i in range(len(pts)):
@@ -176,7 +179,6 @@ def main(): # refresh gets newest league data, call every week
     for count, pts in enumerate(avg_pts, start=0):
         name_to_roster_map[owners[count]] = pts
     
-    df1, df2 = save_player_data(curr_week)
-    to_web_app(df1, df2, year, curr_week, avg_pts, name_to_roster_map, home_teams, away_teams)
+    to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
 main()
