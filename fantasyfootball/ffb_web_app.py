@@ -36,7 +36,7 @@ def write_to_excel(df, df1):
 def to_web_app(df1, df2, year, current_week : int, avg_pts, name_to_roster_map):
     # select_box = st.selectbox()
     home = False
-    st.title(f'Fantasy Football Week {current_week}, {year} Stats')
+    st.title(f'Family Fantasy Football Week {current_week}, {year} Stats')
     st.markdown("""
     This web app takes data from an ESPN Fantasy Football League and creates a webpage out of it
     """)
