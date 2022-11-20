@@ -99,7 +99,11 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         matchups = league.scoreboard(selected_week)
         matchup_data = []
         for matchup in matchups:
-            if matchup.home_score > matchup.away_score:
+            if matchup.home_score == 0 and matchup.away_score == 0:
+                winner = 'No winner yet'
+            elif matchup.home_score != 0 and (matchup.home_score == matchup.away_score):
+                winner = 'Tie'
+            elif matchup.home_score > matchup.away_score:
                 winner = matchup.home_team.owner
             else:
                 winner = matchup.away_team.owner
