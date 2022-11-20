@@ -1,4 +1,4 @@
-# fantasyfootballwebsite
+# ESPN Fantasy Football Website
 
 Created by Joseph Lieberman
 
