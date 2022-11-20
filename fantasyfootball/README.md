@@ -3,6 +3,7 @@
 Created by Joseph Lieberman
 
 * A simple web application made using python's Streamlit library. 
-  * Also utilizes espn_api, an API made for espn fantasy sports leagues
+ * All other used libraries can be found in the 'requirements.txt' folder
 * Takes data from my ESPN football league and presents it on this page
-* homeffb.xlsx --> an excel spreadsheet that contains every started player'a info (points, team, current nfl week, etc.)
+* To run this application use the command:
+ * streamlit run ffb_web_app.py
