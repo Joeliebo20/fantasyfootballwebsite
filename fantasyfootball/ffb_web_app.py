@@ -46,21 +46,33 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     playoff_pct_data = []
     st.title(f'Family Fantasy Football Week {selected_week}, {year} Stats')
     st.markdown("""
-    This web app takes data from an ESPN Fantasy Football League and creates a webpage out of it
+    This web app takes data from my ESPN Fantasy Football League and provides data about it
+    * Created by Joe Lieberman
+    * Code Link: https://github.com/Joeliebo20/fantasyfootballwebsite
     """)
     col1, col2 = st.columns(2)
     col1.header('Home Teams Stats')
     for t in home:
         home_team_names.append(t.owner)
     col1.caption(f"Home Teams this week: {home_team_names}")
-    sort = df1.sort_values(by='Points', ascending=False)
+    sort = df1.sort_values(by='Points', ascending=False).reset_index(drop=True)
+    max_home_player_pts = max(sort['Points'])
+    home_max_player = sort['Player'][0]
+    
     col1.write(sort)
     col2.header('Away Teams Stats')
     for t in away:
         away_team_names.append(t.owner)
-    sort2 = df2.sort_values(by='Points', ascending=False)
+    sort2 = df2.sort_values(by='Points', ascending=False).reset_index(drop=True)
     col2.caption(f'Away teams this week: {away_team_names}')
+    max_away_player_pts = max(sort2['Points'])
+    away_max_player = sort2['Player'][0]
     col2.write(sort2)
+
+    if max_home_player_pts > max_away_player_pts:
+        col1.caption(f'Player with the highest score in week {selected_week} is {home_max_player}, with {max_home_player_pts} pts')
+    elif max_away_player_pts > max_home_player_pts:
+        col1.caption(f'Player with the highest score in week {selected_week} is {away_max_player}, with {max_away_player_pts} pts')
 
     if col1.button('Average Points Per Roster Graph'):
         max_pts = max(avg_pts)
@@ -82,24 +94,20 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         st.pyplot(fig)
-    if col2.button("Other team's average pts per roster"):
-        for name, pts in name_to_roster_map.items():
-            data.append([name, pts])
-        avg_pts_df = pd.DataFrame(columns=['Name', 'Average Points'], data=data)
-        sorted = avg_pts_df.sort_values(by='Average Points', ascending=False)
-        st.write('Numbers on the left are corresponding team ids - the order in which a player joined the league')
-        st.caption('For example - 0 corresponds to Joe, who joined the league first.')
-        st.table(sorted)
-    if col1.button('Playoff percentages'):
-        for t in home:
-            playoff_pct_data.append([t.owner, t.playoff_pct])
-        for t in away:
-            playoff_pct_data.append([t.owner, t.playoff_pct])
-        playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
-        sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False)
-        st.table(sorted_df)
-    choice = col2.selectbox('Other data', ['League Standings', 'Team Records', 'Adds, Drops, and Trades'])
-    if choice == 'League Standings':
+    choice = col2.selectbox('More league data', ['Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'League Scoring Rules', 'Extra League Data and Rules'])
+    if choice == 'Weekly Matchups':
+        matchups = league.scoreboard(selected_week)
+        matchup_data = []
+        for matchup in matchups:
+            if matchup.home_score > matchup.away_score:
+                winner = matchup.home_team.owner
+            else:
+                winner = matchup.away_team.owner
+            matchup_data.append([selected_week, matchup.home_team.owner, matchup.home_score, matchup.away_team.owner, matchup.away_score, winner])
+        matchup_df = pd.DataFrame(columns=['Week', 'Home Team', 'Home Score', 'Away Team', 'Away Score', 'Winner'], data=matchup_data)
+        st.write(matchup_df)
+
+    elif choice == 'League Standings':
         standings = league.standings()
         s = []
         standing = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th']
@@ -112,9 +120,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         for t in teams:
             records.append([t.owner, t.wins, t.losses, t.points_for, t.points_against])
         records_df = pd.DataFrame(columns=["Name", "Wins", "Losses", "PF", 'PA'], data=records)
-        sorted_records = records_df.sort_values(by='Wins', ascending=False)
-        sorted_records['PF'] = sorted_records['PF'].astype(float).round(2)
-        sorted_records['PA'] = sorted_records['PA'].astype(float).round(2)
+        sorted_records = records_df.sort_values(by='Wins', ascending=False).reset_index(drop=True)
         st.table(sorted_records)
     elif choice == 'Adds, Drops, and Trades':
         data = []
@@ -122,6 +128,51 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
             data.append([t.owner, t.acquisitions, t.drops, t.trades])
         other_data_df = pd.DataFrame(columns=['Name', '# of Adds', '# of Drops', '# of Trades'], data=data)
         st.table(other_data_df)
+    elif choice == 'Best and Worst Week':
+        best = league.top_scored_week()
+        worst = league.least_scored_week()
+        best_name = best[0].owner
+        best_score = best[1]
+        worst_name = worst[0].owner
+        worst_score = worst[1]
+        
+        arr1 = [best_name, worst_name]
+        arr2 = [best_score, worst_score]
+        xLabel = 'Teams'
+        yLabel = 'Points Scored'
+        st.header(f'Best and Worst scores of the {year} season')
+        st.write(f'The best score in the {year} season was {best_score} points from {best_name}')
+        st.write(f'The worst score in the {year} season was {worst_score} points from {worst_name}')
+        fig = plt.figure(figsize = (10, 7))
+        plt.bar(arr1, arr2)
+        plt.xlabel(xLabel)
+        plt.ylabel(yLabel)
+        st.pyplot(fig)
+    elif choice == 'League Scoring Rules':
+        st.write('For information on league scoring, click the link below:')
+        st.write('https://fantasy.espn.com/football/league/settings?leagueId=65345194&view=scoring')
+    elif choice == 'Extra League Data and Rules':
+        settings = league.settings
+        st.write(f'Number of regular season weeks: {settings.reg_season_count}')
+        st.write(f'Number of teams: {settings.team_count}')
+        st.write(f'Number of playoff teams: {settings.playoff_team_count}')
+        st.write(f'Number of veto votes required for trades: {settings.veto_votes_required}')
+        # if st.button('League Draft'):
+
+    if col2.button("Other team's average pts per roster"):
+        for name, pts in name_to_roster_map.items():
+            data.append([name, pts])
+        avg_pts_df = pd.DataFrame(columns=['Name', 'Average Points'], data=data)
+        sorted = avg_pts_df.sort_values(by='Average Points', ascending=False).reset_index(drop=True)
+        st.table(sorted)
+    if col1.button('Playoff percentages'):
+        for t in home:
+            playoff_pct_data.append([t.owner, t.playoff_pct])
+        for t in away:
+            playoff_pct_data.append([t.owner, t.playoff_pct])
+        playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
+        sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False).reset_index(drop=True)
+        st.table(sorted_df)
 
 
 
