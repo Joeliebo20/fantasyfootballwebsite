@@ -7,9 +7,6 @@ import matplotlib.pyplot as plt
 from info import league, owners, league_mates, teams, draft, league_ids
 from datetime import datetime
 import streamlit as st
-
-home_data = []
-away_data = []
     
 
 def get_scores(current_week : int, owner_name : str):
@@ -21,8 +18,10 @@ def get_scores(current_week : int, owner_name : str):
 
 def split_array(array):
     arr = []
-    [arr.append(array[i:i+9]) for i in range(0, len(array)-8, 9)]
+    for i in range(0, len(array) - 8, 9):
+        arr.append(array[i:i+9])
     return arr
+
 
 def write_to_excel(df, df1):
     writer = pd.ExcelWriter('homeffb.xlsx')
@@ -30,26 +29,23 @@ def write_to_excel(df, df1):
     df1.to_excel(writer, sheet_name='Away Teams')
     writer.save()
 
-
 def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
-    home, away = [], []
     st.sidebar.header('User Input Features')
-    selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))      
+    selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))     
     df1, df2 = save_player_data(selected_week)
     box_scores = league.box_scores(selected_week)
+    home, away = [], []
     for box_score in box_scores:
         home.append(box_score.home_team)
         away.append(box_score.away_team)
-    data = []
-    home_team_names = []
-    away_team_names = []
-    playoff_pct_data = []
+    data, home_team_names, away_team_names, playoff_pct_data = [], [], [], []
     st.title(f'Family Fantasy Football Week {selected_week}, {year} Stats')
     st.markdown("""
     This web app takes data from my ESPN Fantasy Football League and provides data about it
     * Created by Joe Lieberman
     * Code Link: https://github.com/Joeliebo20/fantasyfootballwebsite
     """)
+
     col1, col2 = st.columns(2)
     col1.header('Home Teams Stats')
     for t in home:
@@ -184,8 +180,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
 
 def save_player_data(current_week : int): 
     # saves each team's data into excel
-    home_lineups, away_lineups, home_lineup, away_lineup = [], [], [], []
-    player_count = 0
+    home_lineups, away_lineups, home_lineup, away_lineup, home_data, away_data, x, y = [], [], [], [], [], [], [], []
     box_scores = league.box_scores(current_week)
     for box_score in box_scores:
         for player in box_score.home_lineup:
@@ -197,13 +192,9 @@ def save_player_data(current_week : int):
             if player.slot_position != 'BE' and player.slot_position != 'IR':
                 away_lineup.append(player)
 
-   
     home_data = split_array(home_lineup)
     away_data = split_array(away_lineup)
 
-
-    x = []
-    y = []
 
     for fantasy_team in home_data:
         for index, player in enumerate(fantasy_team):
@@ -222,10 +213,10 @@ def save_player_data(current_week : int):
 def main(): # refresh gets newest league data, call every week
     today = datetime.now()
     year = datetime.now().year
-    name_to_roster_map = {}
     league.refresh()  
     curr_week = league.current_week
-    pts, pts_against,avg_pts, rosters = [], [], [], []
+    pts, pts_against, avg_pts, rosters = [], [], [], []
+    name_to_roster_map = {}
 
     for t in teams:
         pts.append(t.points_for)
@@ -233,7 +224,6 @@ def main(): # refresh gets newest league data, call every week
         avg_pts.append(pts[i] / curr_week)
     for count, pts in enumerate(avg_pts, start=0):
         name_to_roster_map[owners[count]] = pts
-    
     to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
 main()
