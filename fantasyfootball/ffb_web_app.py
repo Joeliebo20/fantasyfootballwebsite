@@ -7,6 +7,20 @@ import matplotlib.pyplot as plt
 from info import league, owners, league_mates, teams, draft, league_ids
 from datetime import datetime
 import streamlit as st
+
+
+
+def get_starters(lineup, team):
+    # team is of type team, lineup is of type List[boxPlayers]
+    temp, starters = [], []
+    counter = 0
+    for boxPlayer in lineup:
+        if boxPlayer.slot_position != 'BE' and boxPlayer.slot_position != 'IR':
+            temp.append(boxPlayer.name)
+    for player in team.roster:
+        if player.name in temp:
+            starters.append(player)
+    return starters
     
 
 def get_scores(current_week : int, owner_name : str):
@@ -15,19 +29,18 @@ def get_scores(current_week : int, owner_name : str):
             scores = t.scores[0:current_week]
     return scores
 
-
 def split_array(array):
     arr = []
     for i in range(0, len(array) - 8, 9):
         arr.append(array[i:i+9])
     return arr
 
-
 def write_to_excel(df, df1):
     writer = pd.ExcelWriter('homeffb.xlsx')
     df.to_excel(writer, sheet_name='Home Teams')
     df1.to_excel(writer, sheet_name='Away Teams')
     writer.save()
+
 
 def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     st.sidebar.header('User Input Features')
@@ -173,6 +186,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
         sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False).reset_index(drop=True)
         st.table(sorted_df)
+    
 
 
 
