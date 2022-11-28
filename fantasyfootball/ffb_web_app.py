@@ -106,7 +106,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         st.pyplot(fig)
-    choice = col2.selectbox('More league data', ['Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'League Scoring Rules', 'Extra League Data and Rules'])
+    choice = col2.selectbox('More league data', ['Choose an option', 'Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'League Scoring Rules', 'Extra League Data and Rules'])
     if choice == 'Weekly Matchups':
         matchups = league.scoreboard(selected_week)
         matchup_data = []
@@ -175,7 +175,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         st.write(f'Number of veto votes required for trades: {settings.veto_votes_required}')
         # if st.button('League Draft'):
 
-    if col2.button("Other team's average pts per roster"):
+    if col1.button("Other team's average pts per roster"):
         for name, pts in name_to_roster_map.items():
             data.append([name, pts])
         avg_pts_df = pd.DataFrame(columns=['Name', 'Average Points'], data=data)
