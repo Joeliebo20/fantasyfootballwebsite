@@ -58,31 +58,34 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     * Created by Joe Lieberman
     * Code Link: https://github.com/Joeliebo20/fantasyfootballwebsite
     """)
-
     col1, col2 = st.columns(2)
-    col1.header('Home Teams Stats')
-    for t in home:
-        home_team_names.append(t.owner)
-    col1.caption(f"Home Teams this week: {home_team_names}")
-    sort = df1.sort_values(by='Points', ascending=False).reset_index(drop=True)
-    max_home_player_pts = max(sort['Points'])
-    home_max_player = sort['Player'][0]
-    
-    col1.write(sort)
-    col2.header('Away Teams Stats')
-    for t in away:
-        away_team_names.append(t.owner)
-    sort2 = df2.sort_values(by='Points', ascending=False).reset_index(drop=True)
-    col2.caption(f'Away teams this week: {away_team_names}')
-    max_away_player_pts = max(sort2['Points'])
-    away_max_player = sort2['Player'][0]
-    col2.write(sort2)
+    col1.header('Player stats')
+    merged = pd.concat([df1, df2], axis=0)
+    sort = merged.sort_values(by='Points', ascending=False).reset_index(drop=True)
+    max_player_pts = max(sort['Points'])
+    max_player = sort['Player'][0]
+    col1.dataframe(sort)
+    col1.caption(f'Player with the highest score in week {selected_week} is {max_player}, with {max_player_pts} pts')
 
-    if max_home_player_pts > max_away_player_pts:
-        col1.caption(f'Player with the highest score in week {selected_week} is {home_max_player}, with {max_home_player_pts} pts')
-    elif max_away_player_pts > max_home_player_pts:
-        col1.caption(f'Player with the highest score in week {selected_week} is {away_max_player}, with {max_away_player_pts} pts')
-
+    week = 1
+    max_player_pts_arr = []
+    while week <= current_week:
+        tmp, tmp2 = save_player_data(week)
+        merge = pd.concat([tmp, tmp2], axis=0)
+        s = merge.sort_values(by='Points', ascending=False).reset_index(drop=True)
+        max_player_pts = s['Points'][0]
+        max_player_name = s['Player'][0]
+        max_player_pts_arr.append([week, max_player_name, max_player_pts])
+        week += 1
+    max_df = pd.DataFrame(columns=['Week', 'Player', 'Points'], data=max_player_pts_arr)
+    sorted_max = max_df.sort_values(by='Points', ascending=False).reset_index(drop=True)
+    max_max_player_pts = sorted_max['Points'][0]
+    max_max_player = sorted_max['Player'][0]
+    col2.header('Players with highest points per week')
+    col2.dataframe(sorted_max)
+    col2.caption(f'Player with the highest score in the {year} season is {max_max_player}, with {max_max_player_pts} pts')
+        
+   
     if col1.button('Average Points Per Roster Graph'):
         max_pts = max(avg_pts)
         min_pts = min(avg_pts)
@@ -212,14 +215,14 @@ def save_player_data(current_week : int):
 
     for fantasy_team in home_data:
         for index, player in enumerate(fantasy_team):
-            x.append([current_week, player.proTeam, player.name, player.position, player.points])
+            x.append([player.name, player.position, player.points, player.proTeam])
 
     for fantasy_team in away_data:
         for index, player in enumerate(fantasy_team):
-            y.append([current_week, player.proTeam, player.name, player.position, player.points])
+            y.append([player.name, player.position, player.points, player.proTeam])
 
-    df1 = pd.DataFrame(columns=['Week', 'Team', 'Player', 'Position', 'Points'], data=x)
-    df2 = pd.DataFrame(columns=['Week', 'Team', 'Player', 'Position', 'Points'], data=y)  
+    df1 = pd.DataFrame(columns=['Player', 'Position', 'Points', 'Team'], data=x)
+    df2 = pd.DataFrame(columns=['Player', 'Position', 'Points', 'Team'], data=y)  
         
     write_to_excel(df1, df2)
     return (df1, df2)
