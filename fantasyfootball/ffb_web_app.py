@@ -41,6 +41,38 @@ def write_to_excel(df, df1):
     df1.to_excel(writer, sheet_name='Away Teams')
     writer.save()
 
+def predict_final_rankings(map, pcts):
+    # points for, power rankings, matchups, will make playoffs, pct of making
+    power_rankings = league.power_rankings()
+    scores = dict()
+    data = list()
+    predicted_final_rankings = list()
+    for rank in power_rankings:
+        scores[rank[1].owner] = float(rank[0])
+        # key = name, value = power_rank
+
+    for owner, pts in map.items():
+        data.append([owner, pts])
+    df = pd.DataFrame(columns=['Owner', 'Pts'], data=data)
+    sorted_df = df.sort_values(by='Pts', ascending=False).reset_index(drop=True)
+    highest_scoring_pts = [1.6, 1.5, 1.5, .85, .8, .75, .7, .65, .6, .55, .50, .45]
+    highest_scoring_weights = dict()
+    for i, team in enumerate(teams):
+        if sorted_df['Owner'][i] not in highest_scoring_weights:
+            highest_scoring_weights[sorted_df['Owner'][i]] = highest_scoring_pts[i]
+    for team in teams:
+        weight = highest_scoring_weights[team.owner]
+        power_rank_score = scores[team.owner] / 100
+        playoff_pct = pcts[team.owner] / 100
+        score = weight * power_rank_score * playoff_pct
+        predicted_final_rankings.append([team.owner, score * 100])
+    predicted_df = pd.DataFrame(columns=['Team', '%'], data=predicted_final_rankings)
+    sorted_df = predicted_df.sort_values(by='%', ascending=False).reset_index(drop=True)
+    pred_winner = sorted_df['Team'][0]
+    return (sorted_df, pred_winner)
+    
+
+
 
 def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     st.sidebar.header('User Input Features')
@@ -83,7 +115,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     max_max_player = sorted_max['Player'][0]
     col2.header('Players with highest points per week')
     col2.dataframe(sorted_max)
-    col2.caption(f'Player with the highest score in the {year} season is {max_max_player}, with {max_max_player_pts} pts')
+    col2.caption(f'Highest score in the {year} season is {max_max_player}, with {max_max_player_pts} pts')
         
    
     if col1.button('Average Points Per Roster Graph'):
@@ -189,6 +221,15 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
         sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False).reset_index(drop=True)
         st.table(sorted_df)
+    if col2.button('League winner predicter'):
+        playoff_pct = dict()
+        for t in home:
+            playoff_pct[t.owner] =  float(t.playoff_pct)
+        for t in away:
+            playoff_pct[t.owner] =  float(t.playoff_pct)
+        preds, pred_winner = predict_final_rankings(name_to_roster_map, playoff_pct)
+        st.caption(f'Predicted league winner: {pred_winner}')
+        st.table(preds)
     
 
 
@@ -241,6 +282,7 @@ def main(): # refresh gets newest league data, call every week
         avg_pts.append(pts[i] / curr_week)
     for count, pts in enumerate(avg_pts, start=0):
         name_to_roster_map[owners[count]] = pts
+    
     to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
 main()
