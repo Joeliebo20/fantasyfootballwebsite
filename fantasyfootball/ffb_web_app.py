@@ -113,7 +113,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     sorted_max = max_df.sort_values(by='Points', ascending=False).reset_index(drop=True)
     max_max_player_pts = sorted_max['Points'][0]
     max_max_player = sorted_max['Player'][0]
-    col2.header('Players with highest points per week')
+    col2.header('Players with highest points in week')
     col2.dataframe(sorted_max)
     col2.caption(f'Highest score in the {year} season is {max_max_player}, with {max_max_player_pts} pts')
         
