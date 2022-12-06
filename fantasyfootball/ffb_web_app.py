@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from info import league, owners, league_mates, teams, draft, league_ids, previous_league_winners
+from info import league, owners, league_mates, teams, draft, league_ids
+from info import previous_league_winners
 from datetime import datetime
 import streamlit as st
 
