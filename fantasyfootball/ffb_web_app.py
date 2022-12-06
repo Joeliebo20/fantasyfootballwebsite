@@ -11,7 +11,9 @@ import streamlit as st
 
 
 def get_starters(lineup, team):
-    # team is of type team, lineup is of type List[boxPlayers]
+    '''
+    This function gets a team's "staring 9" players and returns them
+    '''
     temp, starters = [], []
     counter = 0
     for boxPlayer in lineup:
@@ -24,25 +26,36 @@ def get_starters(lineup, team):
     
 
 def get_scores(current_week : int, owner_name : str):
+    '''
+    This function returns a team's weekly scores
+    '''
     for t in teams:
         if owner_name == t.owner:
             scores = t.scores[0:current_week]
     return scores
 
 def split_array(array):
+    '''
+    This function splits an array of every player into teams (9 players)
+    '''
     arr = []
     for i in range(0, len(array) - 8, 9):
         arr.append(array[i:i+9])
     return arr
 
 def write_to_excel(df, df1):
+    '''
+    This function writes player data to an excel spreadsheet
+    '''
     writer = pd.ExcelWriter('homeffb.xlsx')
     df.to_excel(writer, sheet_name='Home Teams')
     df1.to_excel(writer, sheet_name='Away Teams')
     writer.save()
 
 def predict_final_rankings(map, pcts):
-    # points for, power rankings, matchups, will make playoffs, pct of making
+    '''
+    This function predicts rhe league winnner using power rankings, playoff percent, and points for
+    '''
     power_rankings = league.power_rankings()
     scores = dict()
     data = list()
@@ -75,6 +88,9 @@ def predict_final_rankings(map, pcts):
 
 
 def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
+    '''
+    This function constructs ths streamlit web app
+    '''
     st.sidebar.header('User Input Features')
     selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))     
     df1, df2 = save_player_data(selected_week)
@@ -237,7 +253,9 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
 
 
 def save_player_data(current_week : int): 
-    # saves each team's data into excel
+    '''
+    This function writes data to excel and puts each team's starters into a dataframe
+    '''
     home_lineups, away_lineups, home_lineup, away_lineup, home_data, away_data, x, y = [], [], [], [], [], [], [], []
     box_scores = league.box_scores(current_week)
     for box_score in box_scores:
@@ -268,10 +286,10 @@ def save_player_data(current_week : int):
     write_to_excel(df1, df2)
     return (df1, df2)
 
-def main(): # refresh gets newest league data, call every week
+def main():
     today = datetime.now()
     year = datetime.now().year
-    league.refresh()  
+    league.refresh() # refresh gets newest league data, called everytime website is loaded 
     curr_week = league.current_week
     pts, pts_against, avg_pts, rosters = [], [], [], []
     name_to_roster_map = {}
