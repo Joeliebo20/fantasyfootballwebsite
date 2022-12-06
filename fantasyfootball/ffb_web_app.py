@@ -66,8 +66,8 @@ def predict_final_rankings(map, pcts):
         playoff_pct = pcts[team.owner] / 100
         score = weight * power_rank_score * playoff_pct
         predicted_final_rankings.append([team.owner, score * 100])
-    predicted_df = pd.DataFrame(columns=['Team', '%'], data=predicted_final_rankings)
-    sorted_df = predicted_df.sort_values(by='%', ascending=False).reset_index(drop=True)
+    predicted_df = pd.DataFrame(columns=['Team', 'Calculated score'], data=predicted_final_rankings)
+    sorted_df = predicted_df.sort_values(by='Calculated score', ascending=False).reset_index(drop=True)
     pred_winner = sorted_df['Team'][0]
     return (sorted_df, pred_winner)
     
@@ -221,7 +221,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
         sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False).reset_index(drop=True)
         st.table(sorted_df)
-    if col2.button('League winner predicter'):
+    if col2.button('League winner predictor'):
         playoff_pct = dict()
         for t in home:
             playoff_pct[t.owner] =  float(t.playoff_pct)
