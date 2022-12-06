@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from info import league, owners, league_mates, teams, draft, league_ids
+from info import league, owners, league_mates, teams, draft, league_ids, previous_league_winners
 from datetime import datetime
 import streamlit as st
 
@@ -68,6 +68,7 @@ def predict_final_rankings(map, pcts):
         data.append([owner, pts])
     df = pd.DataFrame(columns=['Owner', 'Pts'], data=data)
     sorted_df = df.sort_values(by='Pts', ascending=False).reset_index(drop=True)
+    # top 3 teams get better point multipliers
     highest_scoring_pts = [1.6, 1.5, 1.5, .85, .8, .75, .7, .65, .6, .55, .50, .45]
     highest_scoring_weights = dict()
     for i, team in enumerate(teams):
@@ -154,7 +155,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         st.pyplot(fig)
-    choice = col2.selectbox('More league data', ['Choose an option', 'Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'League Scoring Rules', 'Extra League Data and Rules'])
+    choice = col2.selectbox('More league data', ['Choose an option', 'Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'Previous League Winners', 'League Scoring Rules', 'Extra League Data and Rules'])
     if choice == 'Weekly Matchups':
         matchups = league.scoreboard(selected_week)
         matchup_data = []
@@ -212,6 +213,12 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         plt.xlabel(xLabel)
         plt.ylabel(yLabel)
         st.pyplot(fig)
+    elif choice == 'Previous League Winners':
+        league_winner_data = list()
+        for year, winner in previous_league_winners.items():
+            league_winner_data.append([year, winner])
+        data = pd.DataFrame(columns=['Year', 'League Winner'], data=league_winner_data)
+        st.table(data)
     elif choice == 'League Scoring Rules':
         st.write('For information on league scoring, click the link below:')
         st.write('https://fantasy.espn.com/football/league/settings?leagueId=65345194&view=scoring')
