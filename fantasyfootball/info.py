@@ -12,3 +12,4 @@ owners = ["Joe", "Ryan", "Anthony", "Chris Irving", "Big J", "Matt", "Andrew", "
 league_ids = [1, 2, 3, 4, 5, 7, 9, 10, 11, 12]
 teams = league.teams
 draft = league.draft
+previous_league_winners = {2019 : "Joe Lieberman", 2020 : "Joe Lieberman", 2021 : "Matt Lazz"}
