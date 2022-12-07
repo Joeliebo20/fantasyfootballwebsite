@@ -12,7 +12,7 @@ import streamlit as st
 
 def get_starters(lineup, team):
     '''
-    This function gets a team's "staring 9" players and returns them
+    This function gets a team's "starting 9" players and returns them
     '''
     temp, starters = [], []
     counter = 0
@@ -33,6 +33,22 @@ def get_scores(current_week : int, owner_name : str):
         if owner_name == t.owner:
             scores = t.scores[0:current_week]
     return scores
+
+def get_playoff_teams(home, away):
+    '''
+    This function returns an array of the playoff teams
+    '''
+    pcts = dict()
+    playoff_tms = list()
+    for t in home:
+        pcts[t.owner] =  float(t.playoff_pct)
+    for t in away:
+        pcts[t.owner] =  float(t.playoff_pct)
+    for team in teams:
+        if pcts[team.owner] > 0:
+            playoff_tms.append(team.owner)
+    return playoff_tms
+
 
 def split_array(array):
     '''
@@ -107,6 +123,16 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     * Created by Joe Lieberman
     * Code Link: https://github.com/Joeliebo20/fantasyfootballwebsite
     """)
+    if selected_week > 14:
+        st.balloons()
+        pteams = get_playoff_teams(home, away)
+        st.header(f"""
+        Welcome to the {year} playoffs!
+        Playoff teams this year are shown below:
+        """)
+        df = pd.DataFrame(columns=['Team'], data=pteams)
+        st.table(df)
+        st.selectbox('Who do you think will win?', ['Pick a team', f'{pteams[0]}', f'{pteams[1]}', f'{pteams[2]}', f'{pteams[3]}', f'{pteams[4]}', f'{pteams[5]}'])
     col1, col2 = st.columns(2)
     col1.header('Player stats')
     merged = pd.concat([df1, df2], axis=0)
