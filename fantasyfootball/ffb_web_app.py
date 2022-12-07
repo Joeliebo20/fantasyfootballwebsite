@@ -70,7 +70,7 @@ def write_to_excel(df, df1):
 
 def predict_final_rankings(map, pcts):
     '''
-    This function predicts rhe league winnner using power rankings, playoff percent, and points for
+    This function predicts the league winnner using power rankings, playoff percent, and points for
     '''
     power_rankings = league.power_rankings()
     scores = dict()
