@@ -2,6 +2,7 @@ espn_api
 pandas
 numpy
 matplotlib
+PIL
 datetime
 streamlit
 openpyxl
