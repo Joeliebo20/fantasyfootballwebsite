@@ -2,7 +2,7 @@ espn_api
 pandas
 numpy
 matplotlib
-PIL.Image
+Image
 datetime
 streamlit
 openpyxl
