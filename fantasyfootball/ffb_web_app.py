@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from info import *
 from datetime import datetime
 import streamlit as st
+from PIL import Image
 
 
 
@@ -70,7 +71,7 @@ def write_to_excel(df, df1):
 
 def predict_final_rankings(map, pcts):
     '''
-    This function predicts the league winnner using power rankings, playoff percent, and points for
+    This function predicts rhe league winnner using power rankings, playoff percent, and points for
     '''
     power_rankings = league.power_rankings()
     scores = dict()
@@ -108,6 +109,8 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     '''
     This function constructs ths streamlit web app
     '''
+    img = Image.open('FFL-Logo.webp')
+    st.image(img)
     st.sidebar.header('User Input Features')
     selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))     
     df1, df2 = save_player_data(selected_week)
