@@ -347,7 +347,7 @@ def main():
     for i in range(len(pts)):
         avg_pts.append(pts[i] / curr_week)
     for count, pts in enumerate(avg_pts, start=0):
-        name_to_roster_map[owners[count]] = pts
+        name_to_roster_map[teams[count]] = pts
     
     # to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
