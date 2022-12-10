@@ -109,7 +109,7 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
     '''
     This function constructs ths streamlit web app
     '''
-    img = Image.open('FFL-Logo.webp')
+    img = Image.open('fantasyfootball/FFL-Logo.webp')
     st.image(img)
     st.sidebar.header('User Input Features')
     selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))     
