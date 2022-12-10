@@ -92,7 +92,7 @@ def predict_final_rankings(map, pcts):
         if sorted_df['Owner'][i] not in highest_scoring_weights:
             highest_scoring_weights[sorted_df['Owner'][i]] = highest_scoring_pts[i]
     for owner in owners:
-        weight = highest_scoring_weights[towner]
+        weight = highest_scoring_weights[owner]
         power_rank_score = scores[owner] / 100
         playoff_pct = pcts[owner] / 100
         score = weight * power_rank_score * playoff_pct
