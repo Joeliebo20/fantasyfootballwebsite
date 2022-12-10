@@ -91,12 +91,12 @@ def predict_final_rankings(map, pcts):
     for i, team in enumerate(teams):
         if sorted_df['Owner'][i] not in highest_scoring_weights:
             highest_scoring_weights[sorted_df['Owner'][i]] = highest_scoring_pts[i]
-    for team in teams:
-        weight = highest_scoring_weights[team.owner]
-        power_rank_score = scores[team.owner] / 100
-        playoff_pct = pcts[team.owner] / 100
+    for owner in owners:
+        weight = highest_scoring_weights[towner]
+        power_rank_score = scores[owner] / 100
+        playoff_pct = pcts[owner] / 100
         score = weight * power_rank_score * playoff_pct
-        predicted_final_rankings.append([team.owner, score * 100])
+        predicted_final_rankings.append([owner, score * 100])
     predicted_df = pd.DataFrame(columns=['Team', 'Calculated score'], data=predicted_final_rankings)
     sorted_df = predicted_df.sort_values(by='Calculated score', ascending=False).reset_index(drop=True)
     pred_winner = sorted_df['Team'][0]
