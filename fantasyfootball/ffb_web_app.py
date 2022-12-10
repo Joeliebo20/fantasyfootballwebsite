@@ -105,11 +105,12 @@ def predict_final_rankings(map, pcts):
 
 
 
-def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
+def main_page(year, current_week : int, avg_pts, name_to_roster_map):
     '''
     This function constructs ths streamlit web app
     '''
     img = Image.open('fantasyfootball/FFL-Logo.webp')
+    img.load()
     st.image(img)
     st.sidebar.header('User Input Features')
     selected_week = st.sidebar.selectbox('Week', list(reversed(range(1,current_week + 1))))     
@@ -284,6 +285,17 @@ def to_web_app(year, current_week : int, avg_pts, name_to_roster_map):
         st.table(preds)
     
 
+def page2(teams):
+    st.markdown("# Meet the Teams 🎉")
+    col1, col2 = st.columns(2)
+    for index, team in enumerate(teams):
+        if index % 2 == 0:
+            col1.write(team.owner)
+        else:
+            col2.write(team.owner)
+        # put images and description of everyone here
+    
+
 
 
 
@@ -337,6 +349,18 @@ def main():
     for count, pts in enumerate(avg_pts, start=0):
         name_to_roster_map[owners[count]] = pts
     
-    to_web_app(year, curr_week, avg_pts, name_to_roster_map)
+    # to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
-main()
+    page_names_to_funcs = {
+        "Home Page": main_page,
+        "Meet The Players": page2
+    }
+    selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
+    if selected_page == "Home Page":
+        page_names_to_funcs[selected_page](year, curr_week, avg_pts, name_to_roster_map)
+    elif selected_page == "Meet The Players":
+        page_names_to_funcs[selected_page](teams)
+
+
+if __name__ == '__main__':
+    main()
