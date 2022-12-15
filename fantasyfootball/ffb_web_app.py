@@ -43,8 +43,7 @@ def get_playoff_teams(home, away):
     playoff_tms = list()
     for team in teams:
         pcts[team.owner] =  float(team.playoff_pct)
-    # for t in away:
-    #     pcts[t.owner] =  float(t.playoff_pct)
+        
     for team in teams:
         if pcts[team.owner] > 0:
             playoff_tms.append(team.owner)
@@ -69,7 +68,7 @@ def write_to_excel(df, df1):
     df1.to_excel(writer, sheet_name='Away Teams')
     writer.save()
 
-def predict_final_rankings(map, pcts):
+def predict_final_rankings(map, pcts, current_week):
     '''
     This function predicts rhe league winnner using power rankings, playoff percent, and points for
     '''
@@ -85,12 +84,18 @@ def predict_final_rankings(map, pcts):
         data.append([owner, pts])
     df = pd.DataFrame(columns=['Owner', 'Pts'], data=data)
     sorted_df = df.sort_values(by='Pts', ascending=False).reset_index(drop=True)
+
+    if (sorted_df['Pts'][0] * current_week) - (sorted_df['Pts'][1] * current_week) > 100:
+        first = 1.8
+    else:
+        first = 1.6 
     # top 3 teams get better point multipliers
-    highest_scoring_pts = [1.6, 1.5, 1.5, .85, .8, .75, .7, .65, .6, .55, .50, .45]
+    highest_scoring_pts = [first, 1.5, 1.5, .85, .8, .75, .7, .65, .6, .55, .50, .45]
     highest_scoring_weights = dict()
     for i, team in enumerate(teams):
         if sorted_df['Owner'][i] not in highest_scoring_weights:
             highest_scoring_weights[sorted_df['Owner'][i]] = highest_scoring_pts[i]
+
     for team in teams:
         weight = highest_scoring_weights[team.owner]
         power_rank_score = scores[team.owner] / 100
@@ -101,7 +106,6 @@ def predict_final_rankings(map, pcts):
     sorted_df = predicted_df.sort_values(by='Calculated score', ascending=False).reset_index(drop=True)
     pred_winner = sorted_df['Team'][0]
     return (sorted_df, pred_winner)
-    
     
 
 
@@ -279,10 +283,10 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
         playoff_pct = dict()
         for team in teams:
             playoff_pct[team.owner] = float(team.playoff_pct)
-        preds, pred_winner = predict_final_rankings(name_to_roster_map, playoff_pct)
+        preds, pred_winner = predict_final_rankings(name_to_roster_map, playoff_pct, current_week)
         st.caption(f'Predicted league winner: {pred_winner}')
+        st.caption("The calculated score factors in a team's points for, power rank score, playoff percent, and more. The higher the score the more likely this model predicts your team to win the league")
         st.table(preds)
-    
     
 
 def page2(teams):
