@@ -109,7 +109,7 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
     '''
     This function constructs ths streamlit web app
     '''
-    img = Image.open('FFL-Logo.webp')
+    img = Image.open('fantasyfootball/FFL-Logo.webp')
     img.load()
     st.image(img)
     st.sidebar.header('User Input Features')
