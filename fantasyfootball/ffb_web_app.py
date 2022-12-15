@@ -41,10 +41,10 @@ def get_playoff_teams(home, away):
     '''
     pcts = dict()
     playoff_tms = list()
-    for t in home:
-        pcts[t.owner] =  float(t.playoff_pct)
-    for t in away:
-        pcts[t.owner] =  float(t.playoff_pct)
+    for team in teams:
+        pcts[team.owner] =  float(team.playoff_pct)
+    # for t in away:
+    #     pcts[t.owner] =  float(t.playoff_pct)
     for team in teams:
         if pcts[team.owner] > 0:
             playoff_tms.append(team.owner)
@@ -109,7 +109,7 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
     '''
     This function constructs ths streamlit web app
     '''
-    img = Image.open('fantasyfootball/FFL-Logo.webp')
+    img = Image.open('FFL-Logo.webp')
     img.load()
     st.image(img)
     st.sidebar.header('User Input Features')
@@ -348,7 +348,6 @@ def main():
         avg_pts.append(pts[i] / curr_week)
     for count, pts in enumerate(avg_pts, start=0):
         name_to_roster_map[owners[count]] = pts
-    
     # to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
     page_names_to_funcs = {
