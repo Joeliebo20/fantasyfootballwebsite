@@ -43,7 +43,8 @@ def get_playoff_teams(home, away):
     playoff_tms = list()
     for team in teams:
         pcts[team.owner] =  float(team.playoff_pct)
-        
+    # for t in away:
+    #     pcts[t.owner] =  float(t.playoff_pct)
     for team in teams:
         if pcts[team.owner] > 0:
             playoff_tms.append(team.owner)
@@ -141,7 +142,11 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
         """)
         df = pd.DataFrame(columns=['Team'], data=pteams)
         st.table(df)
-        st.selectbox('Who do you think will win?', ['Pick a team', f'{pteams[0]}', f'{pteams[1]}', f'{pteams[2]}', f'{pteams[3]}', f'{pteams[4]}', f'{pteams[5]}'])
+        choice = st.selectbox('Who do you think will win?', ['Pick a team', f'{pteams[0]}', f'{pteams[1]}', f'{pteams[2]}', f'{pteams[3]}', f'{pteams[4]}', f'{pteams[5]}'])
+        if choice in previous_league_winners.values():
+            st.write(f'{choice} has won a championships before. Can they do it again?')
+        elif choice not in previous_league_winners.values() and choice != 'Pick a team':
+            st.write(f'{choice} has not won a championship before. Will this be their year?')
     col1, col2 = st.columns(2)
     col1.header('Player stats')
     merged = pd.concat([df1, df2], axis=0)
@@ -284,13 +289,16 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
         for team in teams:
             playoff_pct[team.owner] = float(team.playoff_pct)
         preds, pred_winner = predict_final_rankings(name_to_roster_map, playoff_pct, current_week)
-        st.caption(f'Predicted league winner: {pred_winner}')
-        st.caption("The calculated score factors in a team's points for, power rank score, playoff percent, and more. The higher the score the more likely this model predicts your team to win the league")
+        st.markdown(f'Predicted league winner: {pred_winner}')
+        st.markdown("""
+        * The _calculated score_ factors in a team's points for, power rank score, playoff percent, and more. 
+        * The higher the score the more likely this model predicts your team to win the league
+                    """)
         st.table(preds)
     
 
 def page2(teams):
-    st.markdown("# Meet the Teams 🎉")
+    st.markdown("# Meet the Players 🎉")
     col1, col2 = st.columns(2)
     for index, team in enumerate(teams):
         if index % 2 == 0:
