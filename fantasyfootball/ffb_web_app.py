@@ -276,13 +276,12 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
         st.table(sorted_df)
     if col2.button('League winner predictor'):
         playoff_pct = dict()
-        for t in home:
-            playoff_pct[t.owner] =  float(t.playoff_pct)
-        for t in away:
-            playoff_pct[t.owner] =  float(t.playoff_pct)
+        for team in teams:
+            playoff_pct[team.owner] = float(team.playoff_pct)
         preds, pred_winner = predict_final_rankings(name_to_roster_map, playoff_pct)
         st.caption(f'Predicted league winner: {pred_winner}')
         st.table(preds)
+    
     
 
 def page2(teams):
