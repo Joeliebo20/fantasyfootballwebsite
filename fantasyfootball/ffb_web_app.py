@@ -175,7 +175,7 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
     col2.caption(f'Highest score in the {year} season is {max_max_player}, with {max_max_player_pts} pts')
         
    
-    if col1.button('Average Points Per Roster Graph'):
+     if col1.button('Average Points Per Roster Graph'):
         max_pts = max(avg_pts)
         min_pts = min(avg_pts)
         for key in name_to_roster_map.keys():
@@ -185,16 +185,23 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
                 min_name = key
         arr1 = league_mates
         arr2 = avg_pts
+        for i in range(len(arr1)):
+            data.append([arr1[i], arr2[i]])
+        df = pd.DataFrame(columns=['Rosters', 'Average Points'], data=data)
         xLabel = 'Rosters'
         yLabel = 'Average Points'
         st.header('Average Points Per Roster(Season)')
         st.write(f'{max_name} has averaged the most points per week : {max_pts}')
         st.write(f'{min_name} has averaged the least points per week : {min_pts}')
         fig = plt.figure(figsize = (10, 7))
-        plt.bar(arr1, arr2)
-        plt.xlabel(xLabel)
-        plt.ylabel(yLabel)
+        sns.barplot(data=df, x='Rosters', y='Average Points')
+        plt.xlabel = xLabel
+        plt.ylabel = yLabel
+        plt.xticks(rotation=50)
+        plt.tight_layout()
+        plt.title('Average Points Per Roster(Season)')
         st.pyplot(fig)
+        
     choice = col2.selectbox('More league data', ['Choose an option', 'Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'Previous League Winners', 'League Scoring Rules', 'Extra League Data and Rules'])
     if choice == 'Weekly Matchups':
         matchups = league.scoreboard(selected_week)
