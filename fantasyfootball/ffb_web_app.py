@@ -285,10 +285,8 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
         sorted = avg_pts_df.sort_values(by='Average Points', ascending=False).reset_index(drop=True)
         st.table(sorted)
     if col1.button('Playoff percentages'):
-        for t in home:
-            playoff_pct_data.append([t.owner, t.playoff_pct])
-        for t in away:
-            playoff_pct_data.append([t.owner, t.playoff_pct])
+        for team in teams:
+            playoff_pct_data.append([team.owner, team.playoff_pct])
         playoff_pct_df = pd.DataFrame(columns=['Team Name', 'Playoff Pct (%)'], data=playoff_pct_data)
         sorted_df = playoff_pct_df.sort_values(by='Playoff Pct (%)', ascending=False).reset_index(drop=True)
         st.table(sorted_df)
