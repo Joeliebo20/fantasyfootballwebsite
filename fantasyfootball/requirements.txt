@@ -6,3 +6,4 @@ Image
 datetime
 streamlit
 openpyxl
+seaborn
