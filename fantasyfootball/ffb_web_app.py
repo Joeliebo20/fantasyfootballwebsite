@@ -200,7 +200,7 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
         plt.ylabel = yLabel
         plt.xticks(rotation=50)
         plt.tight_layout()
-        plt.title('Average Points Per Roster(Season)')
+        plt.title(f'Average Points Per Roster(Season) - current week: {current_week}')
         st.pyplot(fig)
         
     choice = col2.selectbox('More league data', ['Choose an option', 'Weekly Matchups', 'League Standings', 'Team Records', 'Adds, Drops, and Trades', 'Best and Worst Week', 'Previous League Winners', 'League Scoring Rules', 'Extra League Data and Rules'])
