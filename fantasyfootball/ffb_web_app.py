@@ -175,7 +175,7 @@ def main_page(year, current_week : int, avg_pts, name_to_roster_map):
     col2.caption(f'Highest score in the {year} season is {max_max_player}, with {max_max_player_pts} pts')
         
    
-     if col1.button('Average Points Per Roster Graph'):
+    if col1.button('Average Points Per Roster Graph'):
         max_pts = max(avg_pts)
         min_pts = min(avg_pts)
         for key in name_to_roster_map.keys():
