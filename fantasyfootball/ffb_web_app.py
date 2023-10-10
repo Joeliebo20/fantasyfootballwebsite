@@ -358,14 +358,11 @@ def main():
     league.refresh() # refresh gets newest league data, called everytime website is loaded 
     curr_week = league.current_week
     pts, pts_against, avg_pts, rosters = [], [], [], []
-    name_to_roster_map = {}
 
     for t in teams:
         pts.append(t.points_for)
     for i in range(len(pts)):
         avg_pts.append(pts[i] / curr_week)
-    for count, pts in enumerate(avg_pts, start=0):
-        name_to_roster_map[teams[count].owner] = pts
     # to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
 
