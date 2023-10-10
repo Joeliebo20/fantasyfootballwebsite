@@ -368,15 +368,6 @@ def main():
         name_to_roster_map[teams[count].owner] = pts
     # to_web_app(year, curr_week, avg_pts, name_to_roster_map)
 
-    page_names_to_funcs = {
-        "Home Page": main_page,
-        "Meet The Players": page2
-    }
-    selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
-    if selected_page == "Home Page":
-        page_names_to_funcs[selected_page](year, curr_week, avg_pts, name_to_roster_map)
-    elif selected_page == "Meet The Players":
-        page_names_to_funcs[selected_page](teams)
 
 
 if __name__ == '__main__':
